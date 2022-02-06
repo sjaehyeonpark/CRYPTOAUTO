@@ -60,7 +60,7 @@ print("autotrade start")
 
 # 자동매매 시작
 
-target_list = ["KRW-BTC", "KRW-ETH", "KRW-NEAR","KRW-SAND", "KRW-ATOM", "KRW-MANA"]
+target_list = ["KRW-BTC", "KRW-ETH", "KRW-NEAR","KRW-SAND", "KRW-ATOM", "KRW-MANA", "KRW-AAVE"]
 balance = ["BTC", "ETH", "NEAR", "SAND", "ATOM", "MANA"]
 already_buy = [True, True, True, True, True, True]
 
@@ -77,7 +77,7 @@ while True:
                 target_price = get_target_price(target_list[i], 0.3)
                 current_price = get_current_price(target_list[i])
                 if target_price < current_price and now_rsi > 47 and now_rsi < 60 and already_buy[i] == True :
-                    # upbit.buy_market_order(target_list[i], k_balance*0.2)
+                    upbit.buy_market_order(target_list[i], k_balance*0.15)
                     already_buy[i] = False
                     btc = get_balance(balance[i])
                     amount = get_amount(balance[i])
