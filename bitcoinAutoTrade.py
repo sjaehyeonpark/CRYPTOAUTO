@@ -60,10 +60,9 @@ print("autotrade start")
 
 # 자동매매 시작
 
-coinlist = ["KRW-BTC", "KRW-ETH", "KRW-NEAR","KRW-SAND", "KRW-ATOM", "KRW-MANA"]
+target_list = ["KRW-BTC", "KRW-ETH", "KRW-NEAR","KRW-SAND", "KRW-ATOM", "KRW-MANA"]
 balance = ["BTC", "ETH", "NEAR", "SAND", "ATOM", "MANA"]
-k_value = []
-already_buy = {}
+already_buy = [True, True, True, True, True, True]
 
 while True:
     try:
@@ -71,27 +70,29 @@ while True:
         end_time = start_time + datetime.timedelta(days=1) # 다음 날
         now = datetime.datetime.now()
         k_balance = get_balance("KRW")
-        for i in range(len(coinlist)):   
-            data = pyupbit.get_ohlcv(ticker=coinlist[i], interval="minute5")
+        for i in range(len(target_list)):   
+            data = pyupbit.get_ohlcv(ticker=target_list[i], interval="minute5")
             now_rsi = rsi(data, 14).iloc[-1]
-            if start_time < now < end_time - datetime.timedelta(minutes=1): #O시 59분까지
-                target_price = get_target_price(coinlist[i], 0.3)
-                current_price = get_current_price(coinlist[i])
-                if target_price < current_price and now_rsi > 47 and now_rsi < 60 and coinlist[i] in already_buy == False :
-                    upbit.buy_market_order(coinlist[i], k_balance*0.2)
-                    already_buy.add(coinlist[i])
+            if start_time < now < end_time - datetime.timedelta(minutes=1) : #O시 59분까지
+                target_price = get_target_price(target_list[i], 0.3)
+                current_price = get_current_price(target_list[i])
+                if target_price < current_price and now_rsi > 47 and now_rsi < 60 and already_buy[i] == True :
+                    # upbit.buy_market_order(target_list[i], k_balance*0.2)
+                    already_buy[i] = False
                     btc = get_balance(balance[i])
                     amount = get_amount(balance[i])
-                    if (btc*1.05) > amount : 
-                        upbit.sell_market_order(coinlist[i], btc)
+                    if (btc*1.05) > amount :
+                        upbit.sell_market_order(target_list[i], btc*0.9995)
                         if target_price > current_price :
-                            already_buy.remove(coinlist[i])
+                            already_buy[i] = True
             else:
-                if (btc*1.002) > amount and coinlist[i] in already_buy == True:
-                    upbit.sell_market_order(coinlist[i], btc)
-                    already_buy.remove(coinlist[i])
+                btc = get_balance(balance[i])
+                amount = get_amount(balance[i])
+                if (btc*1.002) > amount :
+                    upbit.sell_market_order(target_list[i], btc)
+                    already_buy[i] = True
                 else :
-                    already_buy.remove(coinlist[i])
+                    already_buy[i] = True
             time.sleep(1)
     except Exception as e:
         print(e)
