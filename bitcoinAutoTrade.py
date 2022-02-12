@@ -63,9 +63,9 @@ print("autotrade start")
 
 # 자동매매 시작
 
-target_list = ["KRW-BTC", "KRW-ETH", "KRW-THETA","KRW-SAND", "KRW-ATOM", "KRW-MANA", "KRW-WEMIX", "KRW-SOL"]
-balance = ["BTC", "ETH", "THETA", "SAND", "ATOM", "MANA", "WEMIX", "SOL"]
-already_buy = [True, True, True, True, True, True, True, True]
+target_list = ["KRW-BTC", "KRW-ETH", "KRW-BORA","KRW-SAND", "KRW-ATOM"]
+balance = ["BTC", "ETH", "BORA", "SAND", "ATOM"]
+already_buy = [True, True, True, True, True]
 
 while True:
     try:
@@ -77,21 +77,24 @@ while True:
             data = pyupbit.get_ohlcv(ticker=target_list[i], interval="minute5")
             now_rsi = rsi(data, 14).iloc[-1]
             if start_time < now < end_time - datetime.timedelta(minutes=1) : #O시 59분까지
-                target_price = get_target_price(target_list[i], 0.3) #목표가
+                target_price = get_target_price(target_list[i], 0.4) #목표가
                 current_price = get_current_price(target_list[i]) # 현재가
                 btc = get_balance(balance[i]) #보유 수량
                 amount = get_amount(balance[i]) #매수 금액
                 avg = avg_price(balance[i]) # 매수 평균가
-                if target_price < current_price and now_rsi > 47 and now_rsi < 60 and already_buy[i] == True :
+                print(current_price)
+                print(avg)
+                print(btc)
+                if target_price < current_price and now_rsi > 47 and now_rsi < 62 and already_buy[i] == True :
                     upbit.buy_market_order(target_list[i], k_balance*0.15)
                     already_buy[i] = False
-                    if current_price > avg*1.07 :
+                    if current_price > avg*1.05 :
                         upbit.sell_market_order(target_list[i], btc*0.5) #False 상태 유지
-                        if current_price < target_price*1.015 : #현재가가 목표가의 101.5%를 하회할 때 추가매수 가능
+                        if current_price < target_price*1.015 :
                             already_buy[i] = True
             else:
-                if current_price > avg*1.01 and already_buy[i] == False :
-                    upbit.sell_market_order(target_list[i], btc*0.5)
+                if current_price > avg*1.01 :
+                    upbit.sell_market_order(target_list[i], btc)
                     already_buy[i] = True
                 else :
                     already_buy[i] = True
