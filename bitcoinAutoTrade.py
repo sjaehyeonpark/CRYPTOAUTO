@@ -63,9 +63,9 @@ print("autotrade start")
 
 # 자동매매 시작
 
-target_list = ["KRW-BTC", "KRW-ETH", "KRW-BORA","KRW-SAND", "KRW-ATOM"]
-balance = ["BTC", "ETH", "BORA", "SAND", "ATOM"]
-already_buy = [True, True, True, True, True]
+target_list = ["KRW-BTC", "KRW-ETH"]
+balance = ["BTC", "ETH"]
+already_buy = [True, True]
 
 while True:
     try:
@@ -82,19 +82,16 @@ while True:
                 btc = get_balance(balance[i]) #보유 수량
                 amount = get_amount(balance[i]) #매수 금액
                 avg = avg_price(balance[i]) # 매수 평균가
-                print(current_price)
-                print(avg)
-                print(btc)
                 if target_price < current_price and now_rsi > 47 and now_rsi < 62 and already_buy[i] == True :
-                    upbit.buy_market_order(target_list[i], k_balance*0.15)
+                    upbit.buy_market_order(target_list[i], k_balance*0.2)
                     already_buy[i] = False
-                    if current_price > avg*1.05 :
-                        upbit.sell_market_order(target_list[i], btc*0.5) #False 상태 유지
+                    if current_price > avg*1.1 :
+                        upbit.sell_market_order(target_list[i], btc*0.3) #False 상태 유지
                         if current_price < target_price*1.015 :
                             already_buy[i] = True
             else:
-                if current_price > avg*1.01 :
-                    upbit.sell_market_order(target_list[i], btc)
+                if current_price > avg*1.05 :
+                    upbit.sell_market_order(target_list[i], btc*0.3)
                     already_buy[i] = True
                 else :
                     already_buy[i] = True
